@@ -1,0 +1,3 @@
+/home/e.maksimov3/parallel_prog/task_1/build/CMakeFiles/task1.dir
+/home/e.maksimov3/parallel_prog/task_1/build/CMakeFiles/edit_cache.dir
+/home/e.maksimov3/parallel_prog/task_1/build/CMakeFiles/rebuild_cache.dir
