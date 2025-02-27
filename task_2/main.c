@@ -55,8 +55,8 @@ void run_parallel(int m, int n, int ncores){
 }
 
 int main(){
-    int ncores = 1;
-    int m = 20000, n = 20000;
+    int ncores = 16;
+    int m = 40000, n = 40000;
 
     printf("Matrix-vector product (c[m] = a[m, n] * b[n]; m = %d, n = %d, n_cores = %d)\n", m, n, ncores);
     // printf("Memory used: %" PRIu64 " MiB\n", ((m * n + m + n) * sizeof(double)) >> 20);
