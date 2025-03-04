@@ -52,7 +52,7 @@ int run_parallel(int m, int n, int nthreads){
     matrix_vector_product(a, b, c, m, n, nthreads);
     t = omp_get_wtime() - t;
 
-    printf("%.6f\n", t);
+    printf("%.6f", t);
     free(a);
     free(b);
     free(c);
