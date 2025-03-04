@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <omp.h>
 
-void matrix_vector_product(double *a, double *b, double *c, int m, int n, int ncores){
-    #pragma omp parallel num_threads(ncores)
+
+int matrix_vector_product(double *a, double *b, double *c, int m, int n, int nthreads){
+    #pragma omp parallel num_threads(nthreads)
     {
         int nthreads = omp_get_num_threads();
         int threadid = omp_get_thread_num();
@@ -18,16 +20,19 @@ void matrix_vector_product(double *a, double *b, double *c, int m, int n, int nc
                 c[i] += a[i * n + j] * b[j];
         }
     }
+
+    return 0;
 }
 
-void run_parallel(int m, int n, int ncores){
+
+int run_parallel(int m, int n, int nthreads){
     double *a, *b, *c;
 
     a = (double*)malloc(sizeof(*a) * m * n);
     b = (double*)malloc(sizeof(*b) * n);
     c = (double*)malloc(sizeof(*c) * m);
 
-    #pragma omp parallel num_threads(ncores)
+    #pragma omp parallel num_threads(nthreads)
     {
         int nthreads = omp_get_num_threads();
         int threadid = omp_get_thread_num();
@@ -44,24 +49,35 @@ void run_parallel(int m, int n, int ncores){
         b[j] = j;
 
     double t = omp_get_wtime();
-    matrix_vector_product(a, b, c, m, n, ncores);
+    matrix_vector_product(a, b, c, m, n, nthreads);
     t = omp_get_wtime() - t;
 
-    printf("Elapsed time (parallel): %.6f sec.\n", t);
+    printf("%.6f\n", t);
     free(a);
     free(b);
     free(c);
-    
+
+    return 0;
 }
 
-int main(){
-    int ncores = 16;
-    int m = 40000, n = 40000;
+int main(const int argc, const char** argv){
+    int nthreads;
+    int m = 20000, n = 20000;
 
-    printf("Matrix-vector product (c[m] = a[m, n] * b[n]; m = %d, n = %d, n_cores = %d)\n", m, n, ncores);
+    // printf("Matrix-vector product (c[m] = a[m, n] * b[n]; m = %d, n = %d, n_threads = %d)\n", m, n, nthreads);
     // printf("Memory used: %" PRIu64 " MiB\n", ((m * n + m + n) * sizeof(double)) >> 20);
 
-    run_parallel(m, n, ncores);
-
+    if(argc == 2){
+        m = atoi(argv[1]);
+        n = m;
+        run_parallel(m, n, 1);
+    }
+    else if (argc == 3){
+        nthreads = atoi(argv[1]);
+        m = atoi(argv[2]);
+        n = m;
+        run_parallel(m, n, nthreads);
+    }
+        
     return 0;
 }
