@@ -14,7 +14,7 @@ int matrix_vector_product(double *a, double *b, double *c, int m, int n, int nth
         int lb = threadid * items_per_thread;
         int ub = (threadid == nthreads - 1) ? (m - 1) : (lb + items_per_thread - 1);
 
-        for (int i = 0; i < m; i++) {
+        for (int i = lb; i <= ub; i++) {
             c[i] = 0.0;
             for (int j = 0; j < n; j++)
                 c[i] += a[i * n + j] * b[j];
@@ -64,8 +64,6 @@ int main(const int argc, const char** argv){
     int nthreads;
     int m = 20000, n = 20000;
 
-    // printf("Matrix-vector product (c[m] = a[m, n] * b[n]; m = %d, n = %d, n_threads = %d)\n", m, n, nthreads);
-    // printf("Memory used: %" PRIu64 " MiB\n", ((m * n + m + n) * sizeof(double)) >> 20);
 
     if(argc == 2){
         m = atoi(argv[1]);

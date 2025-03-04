@@ -15,7 +15,7 @@ def main():
 
     for num_threads in threads_arr:
         for size in sizes_arr:
-            output = str(subprocess.run(f"./main {num_threads} {size}", 
+            output = str(subprocess.run(f"main.exe {num_threads} {size}", 
                 capture_output=True, shell=True, text=True, encoding='cp866').stdout)
             
             outputs[sizes[size]][threads[num_threads]] = output
@@ -54,8 +54,5 @@ def main():
             outputs[sizes[40000]][threads[20]], speedups[sizes[40000]][6],
             outputs[sizes[40000]][threads[40]], speedups[sizes[40000]][7]
         ])
-
-    fig, ax = plt.subplots(1, 1)
-    
 
 main()
