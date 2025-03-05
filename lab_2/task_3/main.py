@@ -1,9 +1,9 @@
 import subprocess
 import csv
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-def main():
+def main(type):
     threads_arr = [1, 2, 4, 7, 8, 16, 20, 40]
     sizes_arr = [20000, 40000]
     threads = dict(zip(threads_arr, range(len(threads_arr))))
@@ -14,7 +14,7 @@ def main():
 
     for num_threads in threads_arr:
         for size in sizes_arr:
-            output = str(subprocess.run(f"main1.exe {num_threads} {size}", 
+            output = str(subprocess.run(f"./main{type} {num_threads} {size}", 
                 capture_output=True, shell=True, text=True, encoding='cp866').stdout)
             
             outputs[sizes[size]][threads[num_threads]] = output
@@ -24,7 +24,7 @@ def main():
             speedups[sizes[size]][threads[num_threads]] = float(outputs[sizes[size]][threads[1]]) / float(outputs[sizes[size]][threads[num_threads]])
 
 
-    with open('threads_times_1.csv', 'w') as csvfile:
+    with open(f'threads_times_{type}.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, dialect='excel')
 
         writer.writerow(["", "T1", "T2", "S2", "T4", "S4", "T7", "S7", "T8", "S8", "T16", "S16", "T20", "S20", "T40", "S40"])
@@ -41,4 +41,4 @@ def main():
             ])
 
 
-main()
+main(2)

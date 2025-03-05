@@ -5,7 +5,7 @@ small_size_times = []
 big_size_times = []
 threads_arr = [1, 2, 4, 7, 8, 16, 20, 40]
 
-with open('threads_times_1.csv', 'r') as csvfile:
+with open('threads_times_2.csv', 'r') as csvfile:
     csv_reader = csv.reader(csvfile)
     for row in csv_reader:
         if row[0] == '20000':

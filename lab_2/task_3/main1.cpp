@@ -1,14 +1,19 @@
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
-#include <string.h>
 #include <omp.h>
 
 
 int matrix_vector_product(double *a, double *b, double *c, int m, int n, int nthreads){
     #pragma omp parallel num_threads(nthreads)
     {
-        #pragma omp for
-        for (int i = 0; i < m; i++) {
+        int nthreads = omp_get_num_threads();
+        int threadid = omp_get_thread_num();
+        int items_per_thread = m / nthreads;
+        
+        int lb = threadid * items_per_thread;
+        int ub = (threadid == nthreads - 1) ? (m - 1) : (lb + items_per_thread - 1);
+
+        for (int i = lb; i <= ub; i++) {
             c[i] = 0.0;
             for (int j = 0; j < n; j++)
                 c[i] += a[i * n + j] * b[j];
@@ -28,8 +33,12 @@ int run_parallel(int m, int n, int nthreads){
 
     #pragma omp parallel num_threads(nthreads)
     {
-        #pragma omp parallel for
-        for (int i = 0; i < m; i++) {
+        int nthreads = omp_get_num_threads();
+        int threadid = omp_get_thread_num();
+        int items_per_thread = m / nthreads;
+        int lb = threadid * items_per_thread;
+        int ub = (threadid == nthreads - 1) ? (m - 1) : (lb + items_per_thread - 1);
+        for (int i = lb; i <= ub; i++) {
             for (int j = 0; j < n; j++)
                 a[i * n + j] = i + j;
             c[i] = 0.0;

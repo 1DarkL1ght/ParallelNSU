@@ -1,7 +1,7 @@
 import subprocess
 import csv
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def main():
     threads_arr = [1, 2, 4, 7, 8, 16, 20, 40]
@@ -14,7 +14,7 @@ def main():
 
     for num_threads in threads_arr:
         for size in sizes_arr:
-            output = str(subprocess.run(f"main.exe {num_threads} {size}", 
+            output = str(subprocess.run(f"./main {num_threads} {size}", 
                 capture_output=True, shell=True, text=True, encoding='cp866').stdout)
             
             outputs[sizes[size]][threads[num_threads]] = output

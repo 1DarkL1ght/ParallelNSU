@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
+#include <cmath>
 #include <omp.h>
-#include <math.h>
 
 
 double a = -4.0; /* [a, b] */
