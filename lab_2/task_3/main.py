@@ -38,4 +38,4 @@ def main(type):
         ])
 
 
-main(2)
+main(1)

@@ -16,7 +16,7 @@ int solve(std::vector<double>& A, std::vector<double>& b, std::vector<double>& x
 
     do {
         // Update x
-        #pragma omp parallel for static(100)
+        #pragma omp parallel for schedule(static, 100)
         for (int i = 0; i < N; i++) {
             double sum = 0;
             for (int j = 0; j < N; j++) {
