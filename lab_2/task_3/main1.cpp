@@ -1,80 +1,114 @@
 #include <iostream>
-#include <stdlib.h>
+#include <vector>
+#include <cmath>
 #include <omp.h>
 
+#define eps 1e-5
 
-int matrix_vector_product(double *a, double *b, double *c, int m, int n, int nthreads){
-    #pragma omp parallel num_threads(nthreads)
-    {
-        int nthreads = omp_get_num_threads();
-        int threadid = omp_get_thread_num();
-        int items_per_thread = m / nthreads;
-        
-        int lb = threadid * items_per_thread;
-        int ub = (threadid == nthreads - 1) ? (m - 1) : (lb + items_per_thread - 1);
+double tau = 1e-2;
+int nthreads = 1;
 
-        for (int i = lb; i <= ub; i++) {
-            c[i] = 0.0;
-            for (int j = 0; j < n; j++)
-                c[i] += a[i * n + j] * b[j];
-        }
+/*
+    PRAGMA OMP PARALLEL verion
+*/
+
+
+// Matrix-vector production
+std::vector<double> matrix_vector_prod(std::vector<double> a, std::vector<double> b){
+    std::vector<double> result(b.size(), 0);
+    #pragma omp for
+    for (int i = 0; i <= b.size(); i++) {
+        for (int j = 0; j < b.size(); j++)
+            result[i] += a[i * b.size() + j] * b[j];
     }
+    return result;
+}
 
-    return 0;
+// Norm of the vector
+double vector_norm(std::vector<double> a){
+    double result = 0;
+    #pragma omp for reduction(+:result)
+    for(double elem:a)
+        result += elem * elem;
+    return sqrt(result);
+}
+
+// Vector substraction
+std::vector<double> vector_sub(std::vector<double> a, std::vector<double> b){
+    std::vector<double> result(a.size(), 0);
+    #pragma omp for
+    for(int i = 0; i < a.size(); i++)
+        result[i] = a[i] - b[i];  
+    return result;
 }
 
 
-int run_parallel(int m, int n, int nthreads){
-    double *a, *b, *c;
+std::vector<double> vector_const_mul(std::vector<double> a, double t){
+    std::vector<double> result(a.size(), 0);
+    #pragma omp for
+    for(int i = 0; i < a.size(); i++)
+        result[i] = a[i] * t;  
+    return result;
+}
 
-    a = (double*)malloc(sizeof(*a) * m * n);
-    b = (double*)malloc(sizeof(*b) * n);
-    c = (double*)malloc(sizeof(*c) * m);
 
-    #pragma omp parallel num_threads(nthreads)
+// Solver
+int solve(std::vector<double> &A, std::vector<double> &b, std::vector<double> &x){
+    double num, denum;
+    double criterion;
+    int num_iters = 0;
+    #pragma omp parallel
     {
-        int nthreads = omp_get_num_threads();
-        int threadid = omp_get_thread_num();
-        int items_per_thread = m / nthreads;
-        int lb = threadid * items_per_thread;
-        int ub = (threadid == nthreads - 1) ? (m - 1) : (lb + items_per_thread - 1);
-        for (int i = lb; i <= ub; i++) {
-            for (int j = 0; j < n; j++)
-                a[i * n + j] = i + j;
-            c[i] = 0.0;
-        }
+        do{
+            // A * x production
+            std::vector<double> Ax = matrix_vector_prod(A, x);
+            
+            // Ax - b substraction
+            Ax = vector_sub(Ax, b);
+            
+            // t(Ax - b)
+            std::vector<double> tAx = vector_const_mul(Ax, tau);
+
+            // Update x
+            x = vector_sub(x, tAx);
+
+            // ||Ax - b||
+            num = vector_norm(Ax);
+            denum = vector_norm(b);
+
+            criterion = num / denum;
+            num_iters++;
+            std::cout << "Iter: " << num_iters << ", criterion = " << criterion << std::endl;
+        } while(criterion > eps);
     }
-    for (int j = 0; j < n; j++)
-        b[j] = j;
-
-    double t = omp_get_wtime();
-    matrix_vector_product(a, b, c, m, n, nthreads);
-    t = omp_get_wtime() - t;
-
-    printf("%.6f", t);
-    free(a);
-    free(b);
-    free(c);
-
+    std::cout << "\tDone in " << num_iters << "iterations, criterion = " << criterion << std::endl;
     return 0;
 }
+
 
 int main(const int argc, const char** argv){
-    int nthreads;
-    int m = 20000, n = 20000;
+    int N = 20000;
+    std::vector<double> A(N * N, 0);
+    std::vector<double> x(N, 1);
+    std::vector<double> b(N, 0);
 
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A[i * N + j] = (i == j) ? 2.0 : 0.1;
+        }
+    }
 
     if(argc == 2){
-        m = atoi(argv[1]);
-        n = m;
-        run_parallel(m, n, 1);
-    }
-    else if (argc == 3){
         nthreads = atoi(argv[1]);
-        m = atoi(argv[2]);
-        n = m;
-        run_parallel(m, n, nthreads);
+
+        double start = omp_get_wtime();
+        solve(A, b, x);
+        double end = omp_get_wtime();
+
+        std::cout << "Threads: " << nthreads << ", time = " << end - start << std::endl;
+
     }
-        
+
+
     return 0;
 }
