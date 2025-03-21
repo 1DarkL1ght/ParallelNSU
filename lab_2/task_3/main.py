@@ -11,22 +11,22 @@ def main(type):
 
 
     for num_threads in threads_arr:
-        for size in sizes_arr:
-            output = str(subprocess.run(f"./main{type} {num_threads} {size}", 
-                capture_output=True, shell=True, text=True, encoding='cp866').stdout)
-            
-            times[threads[num_threads]] = output
+        output = str(subprocess.run(f"./main{type} {num_threads}", 
+            capture_output=True, shell=True, text=True, encoding='cp866').stdout)
+        
+        print(f'Threads = {num_threads}, time = {output}')
+
+        times[threads[num_threads]] = output
 
     for num_threads in threads_arr:
-        for size in sizes_arr:
-            speedups[threads[num_threads]] = float(times[threads[1]]) / float(times[threads[num_threads]])
+        speedups[threads[num_threads]] = float(times[threads[1]]) / float(times[threads[num_threads]])
 
 
     with open(f'threads_times_3_{type}.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, dialect='excel')
         
-        writer.writerow(["", "T1", "T2", "S2", "T4", "S4", "T7", "S7", "T8", "S8", "T16", "S16", "T20", "S20", "T40", "S40"])
-        writer.writerow([size, 
+        writer.writerow(["T1", "T2", "S2", "T4", "S4", "T7", "S7", "T8", "S8", "T16", "S16", "T20", "S20", "T40", "S40"])
+        writer.writerow([ 
             times[threads[1]], 
             times[threads[2]], speedups[1], 
             times[threads[4]], speedups[2], 

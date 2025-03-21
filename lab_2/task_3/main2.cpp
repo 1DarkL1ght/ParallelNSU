@@ -43,12 +43,12 @@ int solve(std::vector<double>& A, std::vector<double>& b, std::vector<double>& x
             {
                 criterion = sqrt(num) / sqrt(denum);
                 num_iters++;
-                std::cout << "Iter: " << num_iters << ", criterion = " << criterion << std::endl;
+                // std::cout << "Iter: " << num_iters << ", criterion = " << criterion << std::endl;
             }
         } while (criterion > eps);
     }
 
-    std::cout << "\tDone in " << num_iters << "iterations, criterion = " << criterion << std::endl;
+    // std::cout << "\tDone in " << num_iters << "iterations, criterion = " << criterion << std::endl;
     return 0;
 }
 
@@ -59,14 +59,14 @@ int main(const int argc, const char** argv) {
     std::vector<double> b(n, 1);
     std::vector<double> x(n, 0);
 
-    // Major diagonal init
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            A[i * n + j] = (i == j) ? 2 : 0.1;
-        }
-    }
-
     if(argc == 2){
+        // Major diagonal init
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                A[i * n + j] = (i == j) ? 2 : 0.1;
+            }
+        }
+
         nthreads = atoi(argv[1]);
         omp_set_num_threads(nthreads);
 
@@ -74,8 +74,8 @@ int main(const int argc, const char** argv) {
         solve(A, b, x);
         double end = omp_get_wtime();
 
-        std::cout << "Threads: " << nthreads << ", time = " << end - start << std::endl;
-        // std::cout << end - start;
+        // std::cout << "Threads: " << nthreads << ", time = " << end - start << std::endl;
+        std::cout << end - start;
 
     }
     return 0;

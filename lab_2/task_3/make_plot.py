@@ -10,11 +10,11 @@ def main(type):
     with open(f'threads_times_{type}.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile)
         for row in csv_reader:
-            for i in range(3, len(row), 2):
+            for i in range(2, len(row), 2):
                 speedups.append(float(row[i]))
 
-            times.append(float(row[1]))
-            for i in range(2, len(row), 2):
+            times.append(float(row[0]))
+            for i in range(1, len(row), 2):
                 times.append(float(row[i]))
 
             
