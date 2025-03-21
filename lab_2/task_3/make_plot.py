@@ -28,10 +28,16 @@ def main(type):
     ax1.plot(threads_arr[1:], threads_arr[1:], color='blue', linestyle='dashed', label='Linear', marker='o')  
     ax1.grid()
     ax1.legend()
+    ax1.set_xlabel('Num threads')
+    ax1.set_ylabel('Speedup')
 
-    ax2.plot(threads_arr, times, color = 'green', label='Variant2', marker='o')
+    ax2.plot(threads_arr, times, color = 'green', label=f'static, 100, {times[-1]}', marker='o')
     ax2.grid()
     ax2.legend()
+    ax2.set_xlabel('Num threads')
+    ax2.set_ylabel('Time')
+
+    plt.tight_layout()
     fig.savefig(f"speedups{type}.png")
 
-main(2)
+main(1)
