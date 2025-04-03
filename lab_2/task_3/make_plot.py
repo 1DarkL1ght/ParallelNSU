@@ -31,7 +31,7 @@ def main(type):
     ax1.set_xlabel('Num threads')
     ax1.set_ylabel('Speedup')
 
-    ax2.plot(threads_arr, times, color = 'green', label=f'static, 100, {times[-1]}', marker='o')
+    ax2.plot(threads_arr, times, color = 'green', label=f'static, 1000, {times[-1]}', marker='o')
     ax2.grid()
     ax2.legend()
     ax2.set_xlabel('Num threads')
