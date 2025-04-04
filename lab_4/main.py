@@ -16,7 +16,7 @@ logging.basicConfig(
     filename=os.path.join("log", "app.log"),
     filemode="w",
     format="%(asctime)s - %(levelname)s - %(message)s",
-    level=logging.ERROR
+    level=logging.D
 )
 
 
@@ -46,25 +46,25 @@ class SensorCam(Sensor):
         super().__init__()
         self.cam = cv2.VideoCapture(cam_name)
         if not self.cam.isOpened():
-            logging.error(f"Камера с именем {cam_name} не доступна.")
+            logging.error(f"{cam_name} is unable.")
             self.__del__()
         self.res = res
 
     
     def get(self):
         if not self.cam.isOpened():
-            logging.error("Камера не открыта или отключена.")
+            logging.error("Camera's not opened or unpluged.")
             stop_event.set()
             return None
         try:
             ret, frame = self.cam.read()
-        except Exception as e:
-            logging.error("Не удалось получить кадр с камеры: %s", e)
+        except:
+            logging.error("Unable to get frame from camera.")
             stop_event.set()
             return None
 
         if not ret:
-            logging.error("Ошибка чтения кадра с камеры.")
+            logging.error("Error while reading frame from camera.")
             stop_event.set()
             return None
 
@@ -143,19 +143,19 @@ def main():
             if frame is not None:
                 window.show(frame, sensor_data)
             else:
-                logging.error("Не удалось получить кадр с камеры, завершаем работу.")
+                logging.error("Unable to get frame, shutting down.")
                 stop_event.set()
             time.sleep(1 / args.framerate)
     except:
-        logging.exception("Не удалось получить кадр")
+        logging.exception("Unable to get frame")
     finally:
         stop_event.set()
         for t in threads:
             t.join()
         camera.__del__()
         window.__del__()
-        logging.info("Программа завершена корректно")
-        print("Программа завершена корректно")
+        logging.info("Finished correctly")
+        print("Finished correctly")
 
 
 main()
