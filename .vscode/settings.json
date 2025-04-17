@@ -74,6 +74,16 @@
         "semaphore": "cpp",
         "span": "cpp",
         "text_encoding": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "chrono": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp",
+        "forward_list": "cpp",
+        "iomanip": "cpp",
+        "list": "cpp",
+        "queue": "cpp",
+        "ranges": "cpp",
+        "sstream": "cpp",
+        "xhash": "cpp"
     }
 }

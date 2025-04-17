@@ -10,6 +10,8 @@
 #include <fstream>
 #include <string>
 #include <chrono>
+#include <random>
+#include <future>
 
 template <typename T>
 class Server{
@@ -34,11 +36,18 @@ public:
     size_t add_task(Func&& func, Args&&... args){
         std::lock_guard<std::mutex> lock(queue_mutex);
         size_t task_id = task_counter++;
-        task_queue.push({task_id, std::bind(std::forward<Func>(func), std::forward<Args>(args)...)});
+        task_queue.emplace(
+            task_id,
+            std::bind(
+                std::forward<Func>(func),
+                std::forward<Args>(args)...
+            )
+        );
         cv.notify_one();
         return task_id;
         
     }
+
     T request_result(size_t task_id){
         std::unique_lock<std::mutex> lock(result_mutex);
         result_cv.wait(lock, [&]{return results.find(task_id) != results.end();});
@@ -77,33 +86,85 @@ private:
     std::condition_variable cv, result_cv;
 };
 
-template<typename T>
-void client(Server<T>& server, std::function<T()> task, std::string filename){
-    size_t task_id = server.add_task(task);
+// template<typename T>
+// void client(Server<T>& server, std::function<T()> task, std::string filename){
+//     size_t task_id = server.add_task(task);
+//     std::ofstream file(filename, std::ios::app);
+//     file << "Id: " << task_id << ", result = " << server.request_result(task_id) << "\n";
+//     file.close();
+// }
+
+double get_random_argument(double from, double to) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(from, to);
+    return dis(gen);
+}
+
+std::pair<std::function<double()>, std::string> get_sin_task(){
+    double arg = get_random_argument(0, 100);
+    return {
+        [arg]() { return sin(arg); },
+        "sin(" + std::to_string(arg) + ")"
+    };
+}
+
+std::pair<std::function<double()>, std::string> get_sqrt_task(){
+    double arg = get_random_argument(0, 100);
+    return {
+        [arg]() { return sqrt(arg); },
+        "sqrt(" + std::to_string(arg) + ")"
+    };
+}
+
+std::pair<std::function<double()>, std::string> get_square_task(){
+    double arg = get_random_argument(0, 100);
+    return {
+        [arg]() { return arg * arg; },
+        "(" + std::to_string(arg) + ")^2"
+    };
+}
+
+std::pair<std::function<double()>, std::string> get_pow_task(){
+    double base = get_random_argument(1, 5);
+    double exponent = get_random_argument(1, 5);
+    return {
+        [base, exponent]() { return pow(base, exponent); },
+        "pow(" + std::to_string(base) + ", " + std::to_string(exponent) + ")"
+    };
+}
+
+void client_job(Server<double>& server, std::function<std::pair<std::function<double()>, std::string>()> task_gen, std::string filename){
     std::ofstream file(filename, std::ios::app);
-    file << "Id: " << task_id << ", result = " << server.request_result(task_id) << "\n";
+    for (int i = 0; i < 100; i++) {
+        auto [task, description] = task_gen();
+        size_t id = server.add_task(task);
+        double result = server.request_result(id);
+        file << "Task #" << id << ": " << description << " = " << result << "\n";
+    }
     file.close();
+
 }
 
-template<typename T>
-T fun_square(T x){
-    return x * x;
-}
+// template<typename T>
+// T fun_square(T x){
+//     return x * x;
+// }
 
-template <typename T>
-T fun_sin(T x){
-    return sin(x);
-}
+// template <typename T>
+// T fun_sin(T x){
+//     return sin(x);
+// }
 
-template <typename T>
-T fun_sqrt(T x){
-    return sqrt(x);
-}
+// template <typename T>
+// T fun_sqrt(T x){
+//     return sqrt(x);
+// }
 
-template<typename T>
-T fun_pow(T x, T y){
-    return pow(x, y);
-}
+// template<typename T>
+// T fun_pow(T x, T y){
+//     return pow(x, y);
+// }
 
 int main(){
     Server<double> server;
@@ -113,26 +174,15 @@ int main(){
 
     auto start = std::chrono::system_clock::now();
 
-    for(int i = 0; i < 2000; i++){
-        // std::thread client1(client<double>, std::ref(server), std::bind(fun_pow<double>, 2, 2), "pows.txt");
-        threads.emplace_back(client<double>, std::ref(server), std::bind(fun_pow<double>, 2, 2), "pows.txt");
-    }
-    
-    for(int i = 0; i < 2000; i++){
-        threads.emplace_back(client<double>, std::ref(server), std::bind(fun_sqrt<double>, 3), "sqrts.txt");
-    }
+    std::thread sin_thread(client_job, std::ref(server), get_sin_task, "sin.txt");
+    std::thread sqrt_thread(client_job, std::ref(server), get_sqrt_task, "sqrt.txt");
+    std::thread square_thread(client_job, std::ref(server), get_square_task, "square.txt");
+    std::thread pow_thread(client_job, std::ref(server), get_pow_task, "pow.txt");
 
-    for(int i = 0; i < 2000; i++){
-        threads.emplace_back(client<double>, std::ref(server), std::bind(fun_sin<double>, 30), "sins.txt");
-    }
-
-    for(int i = 0; i < 2000; i++){
-        threads.emplace_back(client<double>, std::ref(server), std::bind(fun_square<double>, 5), "squares.txt");
-    }
-
-
-    for(auto& t:threads)
-        t.join();
+    sin_thread.join();
+    sqrt_thread.join();
+    square_thread.join();
+    pow_thread.join();
 
     server.stop();
     
