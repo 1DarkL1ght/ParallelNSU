@@ -16,7 +16,7 @@ logging.basicConfig(
     filename=os.path.join("log", "app.log"),
     filemode="w",
     format="%(asctime)s - %(levelname)s - %(message)s",
-    level=logging.D
+    level=logging.INFO
 )
 
 
@@ -131,13 +131,13 @@ def main():
 
     window = WindowImage(args.framerate)
 
-    sensor_data = {'Sensor0': 0, 'Sensor1': 1, 'Sensor2': 0}
+    sensor_data = {'Sensor0': 0, 'Sensor1': 0, 'Sensor2': 0}
 
     try:
         while not stop_event.is_set():
             frame = camera.get()
             for name, sensor_queue in {'Sensor0': sensor0_queue, 'Sensor1': sensor1_queue, 'Sensor2': sensor2_queue}.items():
-                if not sensor_queue.empty():
+                while not sensor_queue.empty():
                     sensor_data[name] = sensor_queue.get_nowait()
             
             if frame is not None:
