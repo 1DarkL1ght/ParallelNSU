@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string.h>
 
-#define USE_DOUBLE
+// #define USE_DOUBLE
 
 template <typename T>
 void count_sum(T* sum){

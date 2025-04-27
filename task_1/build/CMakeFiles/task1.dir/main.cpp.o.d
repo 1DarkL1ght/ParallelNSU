@@ -1,5 +1,5 @@
 CMakeFiles/task1.dir/main.cpp.o : \
-  /home/e.maksimov3/parallel_prog/task_1/main.cpp \
+  /home/e.maksimov3/ParallelNSU/task_1/main.cpp \
   /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/compilers/include/_cplus_macros.h \
   /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/compilers/include/_cplus_preinclude.h \
   /usr/include/c++/11/iostream \
