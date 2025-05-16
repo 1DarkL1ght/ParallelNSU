@@ -136,7 +136,7 @@ std::pair<std::function<double()>, std::string> get_pow_task(){
 
 void client_job(Server<double>& server, std::function<std::pair<std::function<double()>, std::string>()> task_gen, std::string filename){
     std::ofstream file(filename, std::ios::app);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 2500; i++) {
         auto [task, description] = task_gen();
         size_t id = server.add_task(task);
         double result = server.request_result(id);
@@ -145,26 +145,6 @@ void client_job(Server<double>& server, std::function<std::pair<std::function<do
     file.close();
 
 }
-
-// template<typename T>
-// T fun_square(T x){
-//     return x * x;
-// }
-
-// template <typename T>
-// T fun_sin(T x){
-//     return sin(x);
-// }
-
-// template <typename T>
-// T fun_sqrt(T x){
-//     return sqrt(x);
-// }
-
-// template<typename T>
-// T fun_pow(T x, T y){
-//     return pow(x, y);
-// }
 
 int main(){
     Server<double> server;
@@ -188,7 +168,7 @@ int main(){
     
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << elapsed.count() << std::endl;
+    std::cout << elapsed << std::endl;
 
     return 0;
 }

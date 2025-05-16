@@ -1,0 +1,3 @@
+C:/nsu prog/ParallelNSU/lab_3/task_2/build/CMakeFiles/multithread.dir
+C:/nsu prog/ParallelNSU/lab_3/task_2/build/CMakeFiles/edit_cache.dir
+C:/nsu prog/ParallelNSU/lab_3/task_2/build/CMakeFiles/rebuild_cache.dir
